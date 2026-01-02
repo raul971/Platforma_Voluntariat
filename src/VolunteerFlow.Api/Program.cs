@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 
 // Configure Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register JwtHelper as a service
 builder.Services.AddScoped<JwtHelper>();

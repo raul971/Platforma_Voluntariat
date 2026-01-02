@@ -56,9 +56,9 @@
               "target": "Package",
               "version": "[6.0.25, )"
             },
-            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+            "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
-              "version": "[6.0.8, )"
+              "version": "[6.0.25, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

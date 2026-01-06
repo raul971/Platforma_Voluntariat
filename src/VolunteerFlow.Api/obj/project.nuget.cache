@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "96GbqZJbOeddyZruXwiiHTTdVQ3CXfkRtdix0kPEhLwhxEdb1j4y7jqyrahypVnctbj+2LBVB4aP7+BtpyN5pw==",
+  "dgSpecHash": "EvHK96f4fmscytLew+dhF99iNcBhW8pdvuOm0LnbjXc7eqetYehjYNouPSs/ZKZJtkuLLQ90cVihsL2LKK4IfQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\andre\\Desktop\\is_cristina\\Platforma_Voluntariat_unicorn\\src\\VolunteerFlow.Api\\VolunteerFlow.Api.csproj",
+  "projectFilePath": "C:\\Users\\andre\\Desktop\\is-raul\\Platforma_Voluntariat\\src\\VolunteerFlow.Api\\VolunteerFlow.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\andre\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\andre\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",

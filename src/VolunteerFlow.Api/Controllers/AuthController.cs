@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using VolunteerFlow.Api.Data;
-using VolunteerFlow.Api.Helpers;
-using VolunteerFlow.Api.Models;
+using VolunteerFlow.Api.DTOs.Auth;
+using VolunteerFlow.Api.Services.Interfaces;
 
 namespace VolunteerFlow.Api.Controllers;
 
@@ -10,13 +8,11 @@ namespace VolunteerFlow.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
-    private readonly JwtHelper _jwtHelper;
+    private readonly IAuthService _authService;
 
-    public AuthController(ApplicationDbContext context, JwtHelper jwtHelper)
+    public AuthController(IAuthService authService)
     {
-        _context = context;
-        _jwtHelper = jwtHelper;
+        _authService = authService;
     }
 
     [HttpGet]
@@ -26,40 +22,24 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+        try
         {
-            return BadRequest(new { message = "Email and password are required" });
+            var response = await _authService.LoginAsync(request);
+            return Ok(response);
         }
-
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email);
-
-        if (user == null || !PasswordHasher.VerifyPassword(request.Password, user.PasswordHash))
+        catch (ArgumentException ex)
         {
-            return Unauthorized(new { message = "Invalid email or password" });
+            return BadRequest(new { message = ex.Message });
         }
-
-        var token = _jwtHelper.GenerateToken(user.Id, user.Email, user.Role);
-
-        return Ok(new
+        catch (UnauthorizedAccessException ex)
         {
-            token = token,
-            user = new
-            {
-                id = user.Id,
-                email = user.Email,
-                fullName = user.FullName,
-                role = user.Role
-            }
-        });
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred during login", error = ex.Message });
+        }
     }
 }
-
-public class LoginRequest
-{
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-}
-

@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using VolunteerFlow.Api.Data;
 using VolunteerFlow.Api.Helpers;
+using VolunteerFlow.Api.Services.Interfaces;
+using VolunteerFlow.Api.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register JwtHelper as a service
 builder.Services.AddScoped<JwtHelper>();
+
+// Register Services
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

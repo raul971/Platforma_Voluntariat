@@ -21,6 +21,7 @@ builder.Services.AddScoped<JwtHelper>();
 
 // Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMeetingService, MeetingService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

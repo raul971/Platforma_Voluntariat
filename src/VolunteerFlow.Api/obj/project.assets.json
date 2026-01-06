@@ -2147,11 +2147,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\andre\\Desktop\\is-raul\\Platforma_Voluntariat\\src\\VolunteerFlow.Api\\VolunteerFlow.Api.csproj",
+      "projectUniqueName": "C:\\Users\\andre\\Desktop\\is_cristina\\Platforma_Voluntariat_unicorn\\src\\VolunteerFlow.Api\\VolunteerFlow.Api.csproj",
       "projectName": "VolunteerFlow.Api",
-      "projectPath": "C:\\Users\\andre\\Desktop\\is-raul\\Platforma_Voluntariat\\src\\VolunteerFlow.Api\\VolunteerFlow.Api.csproj",
+      "projectPath": "C:\\Users\\andre\\Desktop\\is_cristina\\Platforma_Voluntariat_unicorn\\src\\VolunteerFlow.Api\\VolunteerFlow.Api.csproj",
       "packagesPath": "C:\\Users\\andre\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\andre\\Desktop\\is-raul\\Platforma_Voluntariat\\src\\VolunteerFlow.Api\\obj\\",
+      "outputPath": "C:\\Users\\andre\\Desktop\\is_cristina\\Platforma_Voluntariat_unicorn\\src\\VolunteerFlow.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\New folder (3)\\NuGetPackages"

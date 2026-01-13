@@ -1,227 +1,215 @@
-# VolunteerFlow - Platformă de Voluntariat
+# VolunteerFlow - Platforma de Voluntariat
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-Platformă web de management al activităților de voluntariat - Proiect Inginerie Software II (IS2).
+Aplicatie REST API pentru gestionarea voluntarilor si task-urilor in cadrul unei organizatii. Sistemul permite administratorilor sa creeze task-uri si evenimente, sa asigneze munca catre voluntari, iar voluntarii pot accepta sau refuza task-uri si pot raporta orele lucrate.
 
 ## Descriere
 
-**VolunteerFlow** este o aplicație REST API dezvoltată în .NET care facilitează colaborarea între administratori și voluntari într-o organizație. Sistemul permite:
+VolunteerFlow este un API web construit in .NET 6 care faciliteaza colaborarea intre administratori si voluntari. Aplicatia foloseste SQLite pentru baza de date si JWT pentru autentificare.
 
-- **Administratorilor**: să creeze și să asigneze task-uri, să organizeze ședințe și evenimente, să monitorizeze orele lucrate
-- **Voluntarilor**: să răspundă la invitații, să marcheze progresul muncii, să raporteze orele lucrate
+Administratorii pot:
+- Crea, modifica si sterge voluntari
+- Crea task-uri cu deadline-uri si estimari de ore
+- Asigna task-uri catre voluntari
+- Crea evenimente si invita voluntari
 
-## Structură Documentație
-
-📁 **Documentație Proiect:**
-- [SRS_SDD.md](SRS_SDD.md) - Specificații și design (Software Requirements Specification + Software Design Document)
-- [USER_STORIES_DETAILED.md](USER_STORIES_DETAILED.md) - User stories detaliate cu criterii de acceptare
-- [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) - Checklist complet pentru implementare
-- [API_ENDPOINTS.md](API_ENDPOINTS.md) - Documentație completă API endpoints
-
-📊 **Diagrame Mermaid:**
-- [diagrams/admin_task_assignment.mmd](diagrams/admin_task_assignment.mmd) - Flux admin: creare task + asignare
-- [diagrams/volunteer_task_flow.mmd](diagrams/volunteer_task_flow.mmd) - Flux voluntar: accept/refuz + completare
-- [diagrams/meeting_flow.mmd](diagrams/meeting_flow.mmd) - Flux ședință: invitație → răspuns → participare
-- [diagrams/database_erd.mmd](diagrams/database_erd.mmd) - Schema bazei de date (ERD)
-
-## Funcționalități Principale
-
-### Pentru Administratori:
-- ✅ CRUD complet: Voluntari, Task-uri, Ședințe, Evenimente
-- ✅ Asignare task-uri către voluntari
-- ✅ Invitare voluntari la ședințe și evenimente
-- ✅ Rapoarte detaliate de ore lucrate (filtrate pe interval)
-
-### Pentru Voluntari:
-- ✅ Acceptare/Refuzare task-uri asignate
-- ✅ Marcare task completat + raportare ore
-- ✅ Răspuns la invitații ședințe (Particip/Nu particip)
-- ✅ Marcare prezență după ședință
-- ✅ Răspuns la invitații evenimente
-- ✅ Raportare "eveniment a avut loc / nu a avut loc"
+Voluntarii pot:
+- Accepta sau refuza task-urile asignate
+- Marca task-urile ca fiind completate si raporta orele lucrate
+- Raspunde la invitatii pentru evenimente
+- Raporta daca evenimentele la care au participat s-au desfasurat sau nu
 
 ## Tehnologii
 
-- **Backend**: ASP.NET Core Web API (.NET 8)
-- **Database**: PostgreSQL (sau SQLite pentru dezvoltare locală)
-- **ORM**: Entity Framework Core
-- **Authentication**: JWT Bearer Token
-- **API Documentation**: Swagger/OpenAPI
-- **Containerization**: Docker + Docker Compose
-- **Architecture**: REST API, Service Layer Pattern, DTO Pattern
+- Backend: ASP.NET Core Web API (.NET 6)
+- Baza de date: SQLite
+- ORM: Entity Framework Core
+- Autentificare: JWT Bearer Token
+- Documentatie API: Swagger/OpenAPI
+- Containerizare: Docker + Docker Compose
 
-## Cerințe Sistem
+## Structura Bazei de Date
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (pentru dezvoltare locală)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (pentru rulare containerizată)
-- [PostgreSQL](https://www.postgresql.org/download/) (dacă nu folosiți Docker)
+Aplicatia foloseste 5 tabele principale:
 
-## Instalare și Rulare
+- **User** - Utilizatori (Admin sau Volunteer)
+- **TaskModel** - Task-uri create de administratori
+- **TaskAssignment** - Legaturi intre task-uri si voluntari (cu status, ore lucrate, etc.)
+- **Event** - Evenimente create de administratori
+- **EventParticipation** - Participari ale voluntarilor la evenimente
 
-### Opțiune 1: Cu Docker (Recomandat)
+Relatii:
+- Un utilizator poate crea multe task-uri (Admin)
+- Un task poate fi asignat mai multor voluntari
+- Un utilizator poate crea multe evenimente (Admin)
+- Un eveniment poate avea multi participanti
+
+## Endpoint-uri API
+
+Aplicatia expune 26 de endpoint-uri organizate astfel:
+
+**Autentificare (2 endpoint-uri)**
+- GET /api/auth - verifica daca API-ul functioneaza
+- POST /api/auth/login - autentificare utilizator (returneaza token JWT)
+
+**Gestiune Voluntari - doar Admin (5 endpoint-uri)**
+- GET /api/volunteers - lista toti voluntarii
+- GET /api/volunteers/{id} - detalii despre un voluntar
+- POST /api/volunteers - creeaza voluntar nou
+- PUT /api/volunteers/{id} - actualizeaza voluntar
+- DELETE /api/volunteers/{id} - sterge voluntar
+
+**Task-uri - vizualizare pentru toti, modificare doar Admin (6 endpoint-uri)**
+- GET /api/tasks - lista toate task-urile
+- GET /api/tasks/{id} - detalii despre un task
+- POST /api/tasks - creeaza task nou (Admin)
+- PUT /api/tasks/{id} - actualizeaza task (Admin)
+- DELETE /api/tasks/{id} - sterge task (Admin)
+- POST /api/tasks/{taskId}/assign - asigneaza task unui voluntar (Admin)
+
+**Asignari Task-uri - Voluntari (4 endpoint-uri)**
+- GET /api/assignments - lista asignari (Admin vede toate, Volunteer doar ale lui)
+- GET /api/assignments/{id} - detalii asignare
+- PATCH /api/assignments/{id}/respond - accepta sau refuza task (Volunteer)
+- PATCH /api/assignments/{id}/complete - marcheaza task completat si raporteaza ore (Volunteer)
+
+**Evenimente - creare Admin, participare Volunteer (5 endpoint-uri)**
+- GET /api/events - lista toate evenimentele
+- GET /api/events/{id} - detalii eveniment
+- POST /api/events - creeaza eveniment (Admin)
+- POST /api/events/{id}/invite - invita voluntari la eveniment (Admin)
+- GET /api/events/{id}/participations - lista participanti la eveniment (Admin)
+
+**Participari Evenimente - Voluntari (3 endpoint-uri)**
+- GET /api/eventparticipations/my-participations - evenimentele mele (Volunteer)
+- PUT /api/eventparticipations/{id}/respond - raspunde la invitatie (Volunteer)
+- PUT /api/eventparticipations/{id}/report - raporteaza daca evenimentul a avut loc (Volunteer)
+
+**Test (1 endpoint)**
+- GET /api/test - verifica daca API-ul functioneaza
+
+**Total: 26 endpoint-uri** (12 GET, 6 POST, 4 PUT, 2 DELETE, 2 PATCH)
+
+## Cerinte Sistem
+
+- .NET 6 SDK (pentru dezvoltare locala)
+- Docker Desktop (pentru rulare containerizata)
+
+## Cum se ruleaza
+
+### Varianta 1: Cu Docker (Recomandat)
 
 ```bash
-# Clonare repository
-git clone https://github.com/USERNAME/VolunteerFlow.git
-cd VolunteerFlow
+# Navigheaza la folderul proiectului
+cd Platforma_Voluntariat
 
-# Pornire aplicație (API + DB)
-docker compose up --build
+# Porneste aplicatia cu Docker Compose
+docker-compose up -d
 
-# Aplicația va fi disponibilă la:
+# Aplicatia va porni pe:
 # API: http://localhost:5000
 # Swagger: http://localhost:5000/swagger
 ```
 
-### Opțiune 2: Local (fără Docker)
+Comenzi utile Docker:
+```bash
+# Opreste aplicatia
+docker-compose down
+
+# Rebuild dupa modificari cod
+docker-compose up -d --build
+
+# Vezi logs
+docker-compose logs -f api
+```
+
+### Varianta 2: Local (fara Docker)
 
 ```bash
-# Clonare repository
-git clone https://github.com/USERNAME/VolunteerFlow.git
-cd VolunteerFlow/VolunteerFlow.Api
+# Navigheaza la folderul aplicatiei
+cd Platforma_Voluntariat/src/VolunteerFlow.Api
 
-# Configurare connection string în appsettings.json
-# "ConnectionStrings": {
-#   "DefaultConnection": "Host=localhost;Database=volunteer_db;Username=your_user;Password=your_pass"
-# }
-
-# Restaurare pachete
+# Restaureaza pachetele
 dotnet restore
 
-# Aplicare migrații
-dotnet ef database update
+# Compileaza aplicatia
+dotnet build
 
-# Rulare aplicație
+# Ruleaza aplicatia
 dotnet run
 
-# Aplicația va fi disponibilă la:
-# API: http://localhost:5000
+# Aplicatia va porni pe:
+# HTTP: http://localhost:5000
+# HTTPS: https://localhost:5001
 # Swagger: http://localhost:5000/swagger
 ```
 
-## Utilizare Rapidă
+La prima rulare, baza de date SQLite se va crea automat in fisierul `volunteer.db` si va fi populata cu date initiale:
+- 1 administrator: email `admin@example.com`, parola `Admin123!`
+- 2 voluntari: `john@example.com` si `jane@example.com`, parola `Volunteer123!`
 
-### 1. Autentificare
+## Cum se testeaza
 
-```bash
-# Login ca Admin
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"password123"}'
+### Testare cu Swagger (Recomandat)
 
-# Response: { "token": "...", "user": {...} }
+1. Deschide Swagger UI la adresa: http://localhost:5000/swagger
+2. Gaseste endpoint-ul POST /api/auth/login
+3. Click pe "Try it out"
+4. Introdu credentialele de admin:
+```json
+{
+  "email": "admin@example.com",
+  "password": "Admin123!"
+}
 ```
+5. Click "Execute" si copiaza token-ul JWT din raspuns
+6. Click pe butonul "Authorize" (sus-dreapta)
+7. Introdu: `Bearer <token-ul-copiat>`
+8. Click "Authorize" apoi "Close"
+9. Acum poti testa toate endpoint-urile care necesita autentificare
 
-### 2. Creare Task
+### Exemplu flow complet:
 
-```bash
-curl -X POST http://localhost:5000/api/tasks \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Organizare eveniment",
-    "description": "Pregătire sală și materiale",
-    "estimatedHours": 5.0,
-    "deadline": "2026-01-15T18:00:00Z"
-  }'
-```
+**1. Admin creeaza un task:**
+- POST /api/tasks cu titlu, descriere, ore estimate, deadline
 
-### 3. Asignare Task
+**2. Admin asigneaza task-ul unui voluntar:**
+- POST /api/tasks/{taskId}/assign cu ID-ul voluntarului
 
-```bash
-curl -X POST http://localhost:5000/api/tasks/1/assign \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"volunteerId": 2}'
-```
+**3. Voluntarul se autentifica:**
+- POST /api/auth/login cu credentialele de voluntar
 
-Pentru documentație completă API, vezi [API_ENDPOINTS.md](API_ENDPOINTS.md).
+**4. Voluntarul vede task-urile asignate:**
+- GET /api/assignments (cu token-ul de voluntar)
 
-## Structură Bază de Date
+**5. Voluntarul accepta task-ul:**
+- PATCH /api/assignments/{id}/respond cu `{"accepted": true}`
 
-**Entități principale:**
-- `User` - Utilizatori (Admin + Voluntari)
-- `Task` - Task-uri create de admin
-- `TaskAssignment` - Legătura task ↔ voluntar (cu status, ore, etc.)
-- `Meeting` - Ședințe organizate
-- `MeetingInvitation` - Invitații + răspunsuri + prezență
-- `Event` - Evenimente organizate
-- `EventParticipation` - Participare + raport "a avut loc"
+**6. Voluntarul completeaza task-ul:**
+- PATCH /api/assignments/{id}/complete cu ore lucrate si notite
 
-**Relații:**
-- User 1:N TaskAssignment
-- Task 1:N TaskAssignment
-- Meeting 1:N MeetingInvitation
-- Event 1:N EventParticipation
+## Arhitectura Aplicatiei
 
-Vezi [diagrams/database_erd.mmd](diagrams/database_erd.mmd) pentru schema completă.
+Aplicatia foloseste Service Layer Pattern pentru separarea logicii:
 
-## Workflow Dezvoltare
+**Controllere** - Primesc cererile HTTP si returneaza raspunsuri
+- AuthController - Autentificare
+- VolunteersController - Gestiune voluntari (Admin)
+- TasksController - CRUD task-uri
+- AssignmentsController - Raspuns la task-uri (Volunteer)
+- EventsController - CRUD evenimente
+- EventParticipationsController - Participare evenimente (Volunteer)
 
-```bash
-# Creare branch pentru feature
-git checkout -b feature/task-assignments
+**Servicii** - Contin logica business
+- AuthService - Validare credentiale, generare JWT
+- UserService - Gestiune utilizatori
+- TaskService - Logica task-uri + asignari
+- EventService - Logica evenimente + participari
 
-# Commit + Push
-git add .
-git commit -m "Implement task assignment logic"
-git push origin feature/task-assignments
+**Modele** - Entitati baza de date
+- User, TaskModel, TaskAssignment, Event, EventParticipation
 
-# Creare Pull Request pe GitHub/GitLab
-# Review de la coechipier
-# Merge în develop după approve
-```
+**DTOs** - Obiecte pentru transfer date intre client si server
+- Separa reprezentarea API de structura bazei de date
+- Controleaza ce date sunt expuse clientului
 
-**IMPORTANT:** Toate modificările intră în `develop` doar prin Pull Request + review.
-
-## Testare
-
-### Swagger UI (Recomandat pentru testare manuală)
-```
-http://localhost:5000/swagger
-```
-
-### Postman Collection
-(TODO: Adăugați un fișier `.json` cu Postman collection pentru testare)
-
-### Unit Tests
-```bash
-cd VolunteerFlow.Tests
-dotnet test
-```
-
-## Echipă
-
-- **Persoana 1** - Backend (DB, Auth, Tasks, Reports) + Docker
-- **Persoana 2** - Backend (Meetings, Events) + DTOs + Documentație
-
-## Deadline și Etape
-
-- ✅ **ETAPA I** (07.11 - 14.11.2025): Repository + descriere
-- 🔄 **ETAPA II** (14.11 - 28.11.2025): SRS + SDD (2.0p)
-- 🔄 **ETAPA III** (28.11 - 16.01.2026): Dezvoltare + deployment (8.0p)
-- 📅 **Prezentare**: 16-22.01.2026
-
-## Coordonatori
-
-- **Bogdan Mocanu** - bogdan_costel.mocanu@upb.ro
-- **Silviu Pantelimon** - silviu.pantelimon@upb.ro
-
-## Licență
-
-MIT License - vezi [LICENSE](LICENSE) pentru detalii.
-
-## Resurse Utile
-
-- [ASP.NET Core Documentation](https://learn.microsoft.com/en-us/aspnet/core/)
-- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
-- [Docker Compose](https://docs.docker.com/compose/)
-- [JWT Authentication](https://jwt.io/)
-- [REST API Best Practices](https://restfulapi.net/)
-
----
-
-**Proiect realizat în cadrul cursului Inginerie Software II - Universitatea Politehnica București**
+Baza de date SQLite se afla in fisierul `volunteer.db` si este gestionata de Entity Framework Core. La pornirea aplicatiei, daca baza nu exista, se creeaza automat impreuna cu datele initiale (1 admin + 2 voluntari).

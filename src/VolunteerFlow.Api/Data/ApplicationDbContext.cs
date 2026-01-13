@@ -13,8 +13,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<TaskModel> Tasks { get; set; } = null!;
     public DbSet<TaskAssignment> TaskAssignments { get; set; } = null!;
-    public DbSet<Meeting> Meetings { get; set; } = null!;
-    public DbSet<MeetingInvitation> MeetingInvitations { get; set; } = null!;
     public DbSet<Event> Events { get; set; } = null!;
     public DbSet<EventParticipation> EventParticipations { get; set; } = null!;
 
@@ -61,36 +59,6 @@ public class ApplicationDbContext : DbContext
 
             entity.HasOne(e => e.Volunteer)
                 .WithMany(u => u.TaskAssignments)
-                .HasForeignKey(e => e.VolunteerId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        // Meeting configurations
-        modelBuilder.Entity<Meeting>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Title).IsRequired().HasMaxLength(255);
-            entity.Property(e => e.Description).IsRequired();
-
-            entity.HasOne(e => e.CreatedByAdmin)
-                .WithMany(u => u.CreatedMeetings)
-                .HasForeignKey(e => e.CreatedByAdminId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        // MeetingInvitation configurations
-        modelBuilder.Entity<MeetingInvitation>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Response).IsRequired().HasMaxLength(50);
-
-            entity.HasOne(e => e.Meeting)
-                .WithMany(m => m.Invitations)
-                .HasForeignKey(e => e.MeetingId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(e => e.Volunteer)
-                .WithMany(u => u.MeetingInvitations)
                 .HasForeignKey(e => e.VolunteerId)
                 .OnDelete(DeleteBehavior.Restrict);
         });

@@ -12,6 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Configure Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -21,11 +32,9 @@ builder.Services.AddScoped<JwtHelper>();
 
 // Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IMeetingService, MeetingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<IReportService, ReportService>();
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -47,6 +56,25 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+    
+    // Allow token with or without "Bearer" prefix
+    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(token))
+            {
+                // Remove "Bearer " prefix if present, otherwise use token as-is
+                if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    token = token.Substring("Bearer ".Length).Trim();
+                }
+                context.Token = token;
+            }
+            return System.Threading.Tasks.Task.CompletedTask;
+        }
     };
 });
 
@@ -106,6 +134,8 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "VolunteerFlow API v1");
     c.RoutePrefix = "swagger";
 });
+
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 

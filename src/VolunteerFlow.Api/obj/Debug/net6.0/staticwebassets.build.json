@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "oaPsHo8KwaG8QCbuRmPVPSHoLiBaxtHoCC2QEUbuDd8=",
+  "Source": "VolunteerFlow.Api",
+  "BasePath": "_content/VolunteerFlow.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
